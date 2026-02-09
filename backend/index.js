@@ -19,8 +19,8 @@ app.use(express.json());
 app.use(
   cors({
     origin: [
-      "http://localhost:5173",           // local frontend
-      "https://your-frontend.vercel.app" // production frontend
+      "http://localhost:5173",
+      "https://learn-hub-blush.vercel.app"
     ],
     credentials: true,
   })
