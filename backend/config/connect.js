@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const connectionOfDb = () => {
   mongoose
-    .connect(process.env.MONGO_DB, {
+    .connect(process.env.MONGO_URL, {
       dbName: 'video-course-application',
       useNewUrlParser: true,
       useUnifiedTopology: true,
