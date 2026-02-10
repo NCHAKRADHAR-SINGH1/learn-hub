@@ -22,9 +22,13 @@ app.use(
       "http://localhost:5173",
       "https://learn-hub-blush.vercel.app"
     ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
 );
+
+// ✅ Handle preflight requests
+app.options("*", cors());
 
 ////// UPLOADS (TEMP on Render) ///////
 const uploadsDir = path.join(__dirname, "uploads");
