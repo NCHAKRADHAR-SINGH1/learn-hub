@@ -1,6 +1,7 @@
+
 const mongoose = require("mongoose");
 
-const userModel = mongoose.Schema(
+const UserSchema = mongoose.Schema(
   {
     name: {
       type: String,
@@ -21,18 +22,12 @@ const userModel = mongoose.Schema(
       type: String,
       required: [true, "type is required"],
     },
-    // enrolledCourses: [
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "course",
-    //   },
-    // ],
   },
   {
     timestamps: true,
   }
 );
 
-const userSchema = mongoose.model("user", userModel);
+const User = mongoose.model("user", UserSchema);
 
-module.exports = userSchema;
+module.exports = User;
