@@ -1,15 +1,15 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const userSchema = require("../schemas/userModel");
-const courseSchema = require("../schemas/courseModel");
-const enrolledCourseSchema = require("../schemas/enrolledCourseModel");
-const coursePaymentSchema = require("../schemas/coursePaymentModel");
+const User = require("../schemas/userModel");
+const Course = require("../schemas/courseModel");
+const EnrolledCourse = require("../schemas/enrolledCourseModel");
+const CoursePayment = require("../schemas/coursePaymentModel");
 
 ////////// REGISTER //////////
 const registerController = async (req, res) => {
   try {
-    const existsUser = await userSchema.findOne({ email: req.body.email });
+    const existsUser = await User.findOne({ email: req.body.email });
     if (existsUser) {
       return res
         .status(409)
@@ -19,7 +19,7 @@ const registerController = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
-    const newUser = new userSchema({
+    const newUser = new User({
       ...req.body,
       password: hashedPassword,
     });
@@ -42,7 +42,7 @@ const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await userSchema.findOne({ email });
+    const user = await User.findOne({ email });
     if (!user) {
       return res
         .status(404)
@@ -79,7 +79,7 @@ const loginController = async (req, res) => {
 ////////// GET ALL COURSES //////////
 const getAllCoursesController = async (req, res) => {
   try {
-    const allCourses = await courseSchema.find();
+    const allCourses = await Course.find();
     return res.status(200).send({
       success: true,
       data: allCourses,
@@ -132,7 +132,7 @@ const postCourseController = async (req, res) => {
 
     price = C_price == 0 ? "free" : C_price;
 
-    const course = new courseSchema({
+    const course = new Course({
       userId,
       C_educator,
       C_title,
@@ -156,7 +156,7 @@ const postCourseController = async (req, res) => {
 ////////// GET COURSES FOR USER //////////
 const getAllCoursesUserController = async (req, res) => {
   try {
-    const allCourses = await courseSchema.find({ userId: req.body.userId });
+    const allCourses = await Course.find({ userId: req.body.userId });
 
     return res.send({
       success: true,
@@ -173,7 +173,7 @@ const getAllCoursesUserController = async (req, res) => {
 const deleteCourseController = async (req, res) => {
   const { courseid } = req.params;
   try {
-    const course = await courseSchema.findByIdAndDelete(courseid);
+    const course = await Course.findByIdAndDelete(courseid);
 
     if (!course) {
       return res
@@ -195,7 +195,7 @@ const enrolledCourseController = async (req, res) => {
   const { courseid } = req.params;
   const noting = req.body;
   try {
-    const course = await courseSchema.findById(courseid);
+    const course = await Course.findById(courseid);
 
     if (!course) {
       return res
@@ -203,7 +203,7 @@ const enrolledCourseController = async (req, res) => {
         .send({ success: false, message: "Course Not Found!" });
     }
 
-    const enrolledCourse = await enrolledCourseSchema.findOne({
+    const enrolledCourse = await EnrolledCourse.findOne({
       courseId: courseid,
       userId: req.body.userId,
     });
@@ -215,13 +215,13 @@ const enrolledCourseController = async (req, res) => {
       });
     }
 
-    const enrolledCourseInstance = new enrolledCourseSchema({
+    const enrolledCourseInstance = new EnrolledCourse({
       courseId: courseid,
       userId: req.body.userId,
       course_Length: course.sections.length,
     });
 
-    const coursePayment = new coursePaymentSchema({
+    const coursePayment = new CoursePayment({
       userId: req.body.userId,
       courseId: courseid,
       ...noting,
@@ -249,13 +249,13 @@ const sendCourseContentController = async (req, res) => {
   const { courseid } = req.params;
 
   try {
-    const course = await courseSchema.findById(courseid);
+    const course = await Course.findById(courseid);
     if (!course)
       return res
         .status(404)
         .send({ success: false, message: "No such course found" });
 
-    const user = await enrolledCourseSchema.findOne({
+    const user = await EnrolledCourse.findOne({
       userId: req.body.userId,
       courseId: courseid,
     });
@@ -285,7 +285,7 @@ const completeSectionController = async (req, res) => {
   const { courseId, sectionId } = req.body;
 
   try {
-    const enrolledCourseContent = await enrolledCourseSchema.findOne({
+    const enrolledCourseContent = await EnrolledCourse.findOne({
       courseId,
       userId: req.body.userId,
     });
@@ -299,7 +299,7 @@ const completeSectionController = async (req, res) => {
     const updatedProgress = enrolledCourseContent.progress || [];
     updatedProgress.push({ sectionId });
 
-    await enrolledCourseSchema.findByIdAndUpdate(
+    await EnrolledCourse.findByIdAndUpdate(
       enrolledCourseContent._id,
       { progress: updatedProgress },
       { new: true }
@@ -316,11 +316,11 @@ const completeSectionController = async (req, res) => {
 const sendAllCoursesUserController = async (req, res) => {
   const { userId } = req.body;
   try {
-    const enrolledCourses = await enrolledCourseSchema.find({ userId });
+    const enrolledCourses = await EnrolledCourse.find({ userId });
 
     const coursesDetails = await Promise.all(
       enrolledCourses.map(async (enrolledCourse) => {
-        return await courseSchema.findById(enrolledCourse.courseId);
+        return await Course.findById(enrolledCourse.courseId);
       })
     );
 
