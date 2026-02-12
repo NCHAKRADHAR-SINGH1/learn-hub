@@ -20,7 +20,8 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://learn-hub-blush.vercel.app"
+      "https://learn-hub-blush.vercel.app", // Your frontend
+      "https://learn-hub-q20k.onrender.com"  // ✅ ADD YOUR BACKEND URL
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
